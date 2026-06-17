@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Activity,
   Bell,
@@ -13,6 +13,7 @@ import { Topbar } from "@/src/components/dashboard/topbar";
 import { StatCard } from "@/src/components/dashboard/stat-card";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import { EventVolumeChart } from "@/src/components/dashboard/event-volume-chart";
+import { useUIState } from "@/src/store";
 import {
   events,
   dashboardStats,
@@ -31,8 +32,10 @@ const statusTone: Record<EventStatus, "success" | "pending" | "danger"> = {
 const chainFilters = ["All", ...CHAINS] as const;
 
 export default function DashboardPage() {
-  const [chain, setChain] = useState<string>("All");
-  const [query, setQuery] = useState("");
+  const chain = useUIState((state) => state.dashboardChainFilter);
+  const query = useUIState((state) => state.dashboardSearchQuery);
+  const setChain = useUIState((state) => state.setDashboardChainFilter);
+  const setQuery = useUIState((state) => state.setDashboardSearchQuery);
 
   const filtered = useMemo(() => {
     return events.filter((e) => {

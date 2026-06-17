@@ -9,27 +9,17 @@ import {
   channelIcons,
 } from "@/src/components/dashboard/channel-icon";
 import { Button } from "@/src/components/ui/button";
+import { useData } from "@/src/store";
 import {
-  rules as initialRules,
   channelLabels,
   timeAgo,
-  type NotificationRule,
   type ChannelType,
 } from "@/src/lib/mock-data";
 
 export default function RulesPage() {
-  const [rules, setRules] = useState<NotificationRule[]>(initialRules);
+  const rules = useData((state) => state.rules);
+  const toggleRule = useData((state) => state.toggleRule);
   const [showForm, setShowForm] = useState(false);
-
-  function toggle(id: string) {
-    setRules((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, status: r.status === "active" ? "paused" : "active" }
-          : r
-      )
-    );
-  }
 
   const activeCount = rules.filter((r) => r.status === "active").length;
 
@@ -120,7 +110,7 @@ export default function RulesPage() {
                     <button
                       role="switch"
                       aria-checked={rule.status === "active"}
-                      onClick={() => toggle(rule.id)}
+                      onClick={() => toggleRule(rule.id)}
                       className={
                         "relative h-5 w-9 rounded-full transition-colors " +
                         (rule.status === "active"

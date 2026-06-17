@@ -5,11 +5,10 @@ import { Plus, Copy, Check, Trash2 } from "lucide-react";
 import { Topbar } from "@/src/components/dashboard/topbar";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import { Button } from "@/src/components/ui/button";
+import { useData } from "@/src/store";
 import {
-  watchlist as initialWatchlist,
   chainColors,
   timeAgo,
-  type WatchedContract,
 } from "@/src/lib/mock-data";
 
 function shorten(addr: string) {
@@ -17,23 +16,15 @@ function shorten(addr: string) {
 }
 
 export default function WatchlistPage() {
-  const [items, setItems] = useState<WatchedContract[]>(initialWatchlist);
+  const items = useData((state) => state.watchlist);
+  const toggleWatchlistItem = useData((state) => state.toggleWatchlistItem);
+  const removeWatchlistItem = useData((state) => state.removeWatchlistItem);
   const [copied, setCopied] = useState<string | null>(null);
 
   function copy(addr: string) {
     navigator.clipboard?.writeText(addr);
     setCopied(addr);
     setTimeout(() => setCopied(null), 1500);
-  }
-
-  function toggle(id: string) {
-    setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, active: !i.active } : i))
-    );
-  }
-
-  function remove(id: string) {
-    setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
   const activeCount = items.filter((i) => i.active).length;
@@ -129,14 +120,14 @@ export default function WatchlistPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toggle(c.id)}
+                    onClick={() => toggleWatchlistItem(c.id)}
                   >
                     {c.active ? "Pause" : "Resume"}
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => remove(c.id)}
+                    onClick={() => removeWatchlistItem(c.id)}
                     aria-label="Remove contract"
                     className="text-muted-foreground hover:text-destructive"
                   >
