@@ -448,3 +448,138 @@ export function timeAgo(iso: string | null): string {
   const d = Math.floor(h / 24);
   return `${d}d ago`;
 }
+
+// ─── Notification Delivery Timeline ──────────────────────────────────────────
+
+export type DeliveryStatus =
+  | "pending"
+  | "queued"
+  | "processing"
+  | "delivered"
+  | "failed";
+
+export interface DeliveryStage {
+  status: DeliveryStatus;
+  timestamp: string | null; // ISO — null means not yet reached
+  note?: string;
+}
+
+export interface NotificationDelivery {
+  id: string;
+  eventId: string;
+  eventName: string;
+  contract: string;
+  chain: Chain;
+  channel: ChannelType;
+  channelName: string;
+  stages: DeliveryStage[];
+}
+
+function stagesFor(
+  reached: DeliveryStatus,
+  base: number,
+  failNote?: string
+): DeliveryStage[] {
+  const order: DeliveryStatus[] = [
+    "pending",
+    "queued",
+    "processing",
+    "delivered",
+  ];
+  const reachedIdx = order.indexOf(reached as DeliveryStatus);
+  const isFailed = reached === "failed";
+
+  return order.map((s, i) => {
+    if (isFailed) {
+      // pending/queued/processing reached before failure
+      const failAt = order.indexOf("processing");
+      if (i < failAt)
+        return { status: s, timestamp: new Date(base + i * 800).toISOString() };
+      if (i === failAt)
+        return {
+          status: "failed" as DeliveryStatus,
+          timestamp: new Date(base + i * 800).toISOString(),
+          note: failNote ?? "Delivery failed",
+        };
+      return { status: s, timestamp: null };
+    }
+    if (i <= reachedIdx)
+      return { status: s, timestamp: new Date(base + i * 800).toISOString() };
+    return { status: s, timestamp: null };
+  });
+}
+
+const now = Date.now();
+
+export const deliveries: NotificationDelivery[] = [
+  {
+    id: "dl_01",
+    eventId: "evt_9f2a",
+    eventName: "Transfer",
+    contract: "USDC",
+    chain: "Ethereum",
+    channel: "webhook",
+    channelName: "Ops Webhook",
+    stages: stagesFor("delivered", now - 1000 * 60 * 2),
+  },
+  {
+    id: "dl_02",
+    eventId: "evt_8d71",
+    eventName: "LiquidationCall",
+    contract: "Aave Pool",
+    chain: "Ethereum",
+    channel: "discord",
+    channelName: "Risk Discord",
+    stages: stagesFor("delivered", now - 1000 * 60 * 5),
+  },
+  {
+    id: "dl_03",
+    eventId: "evt_7c40",
+    eventName: "Swap",
+    contract: "Uniswap V3",
+    chain: "Base",
+    channel: "telegram",
+    channelName: "Trading Telegram",
+    stages: stagesFor("processing", now - 1000 * 60 * 1),
+  },
+  {
+    id: "dl_04",
+    eventId: "evt_5a18",
+    eventName: "Submitted",
+    contract: "Lido stETH",
+    chain: "Ethereum",
+    channel: "webhook",
+    channelName: "Ops Webhook",
+    stages: stagesFor("failed", now - 1000 * 60 * 8, "Webhook endpoint timed out"),
+  },
+  {
+    id: "dl_05",
+    eventId: "evt_2d55",
+    eventName: "ProposalCreated",
+    contract: "Governor Bravo",
+    chain: "Ethereum",
+    channel: "telegram",
+    channelName: "Trading Telegram",
+    stages: stagesFor("delivered", now - 1000 * 60 * 20),
+  },
+  {
+    id: "dl_06",
+    eventId: "evt_4f93",
+    eventName: "DepositInitiated",
+    contract: "Arbitrum Bridge",
+    chain: "Arbitrum",
+    channel: "webhook",
+    channelName: "Ops Webhook",
+    stages: stagesFor("queued", now - 1000 * 30),
+  },
+  {
+    id: "dl_07",
+    eventId: "evt_1c33",
+    eventName: "OrdersMatched",
+    contract: "Blur Marketplace",
+    chain: "Ethereum",
+    channel: "email",
+    channelName: "On-call Email",
+    stages: stagesFor("pending", now - 1000 * 10),
+  },
+];
