@@ -613,3 +613,69 @@ export function timeAgo(iso: string | null): string {
   const d = Math.floor(h / 24);
   return `${d}d ago`;
 }
+
+// ---------------------------------------------------------------------------
+// Delivery trend data — used by the configurable delivery-trends chart.
+// Each interval holds a series of { label, delivered, failed } buckets.
+// ---------------------------------------------------------------------------
+
+export type TrendInterval = "1h" | "24h" | "7d" | "30d";
+
+export interface TrendPoint {
+  label: string;
+  delivered: number;
+  failed: number;
+}
+
+export const TREND_INTERVALS: TrendInterval[] = ["1h", "24h", "7d", "30d"];
+
+export const trendIntervalLabels: Record<TrendInterval, string> = {
+  "1h": "Last hour",
+  "24h": "Last 24 h",
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+};
+
+export const deliveryTrends: Record<TrendInterval, TrendPoint[]> = {
+  "1h": [
+    { label: "00m", delivered: 42, failed: 1 },
+    { label: "10m", delivered: 58, failed: 2 },
+    { label: "20m", delivered: 37, failed: 0 },
+    { label: "30m", delivered: 61, failed: 3 },
+    { label: "40m", delivered: 49, failed: 1 },
+    { label: "50m", delivered: 54, failed: 2 },
+    { label: "60m", delivered: 67, failed: 0 },
+  ],
+  "24h": [
+    { label: "00:00", delivered: 310, failed: 4 },
+    { label: "02:00", delivered: 224, failed: 2 },
+    { label: "04:00", delivered: 180, failed: 1 },
+    { label: "06:00", delivered: 260, failed: 3 },
+    { label: "08:00", delivered: 480, failed: 8 },
+    { label: "10:00", delivered: 720, failed: 11 },
+    { label: "12:00", delivered: 890, failed: 14 },
+    { label: "14:00", delivered: 940, failed: 9 },
+    { label: "16:00", delivered: 820, failed: 7 },
+    { label: "18:00", delivered: 670, failed: 5 },
+    { label: "20:00", delivered: 510, failed: 4 },
+    { label: "22:00", delivered: 390, failed: 3 },
+  ],
+  "7d": [
+    { label: "Mon", delivered: 5200, failed: 62 },
+    { label: "Tue", delivered: 6100, failed: 44 },
+    { label: "Wed", delivered: 4800, failed: 91 },
+    { label: "Thu", delivered: 7200, failed: 38 },
+    { label: "Fri", delivered: 8100, failed: 55 },
+    { label: "Sat", delivered: 3900, failed: 20 },
+    { label: "Sun", delivered: 3100, failed: 18 },
+  ],
+  "30d": [
+    { label: "Jun 1", delivered: 28400, failed: 320 },
+    { label: "Jun 5", delivered: 31200, failed: 280 },
+    { label: "Jun 10", delivered: 29800, failed: 410 },
+    { label: "Jun 15", delivered: 33500, failed: 190 },
+    { label: "Jun 20", delivered: 36100, failed: 240 },
+    { label: "Jun 25", delivered: 34700, failed: 310 },
+    { label: "Jun 30", delivered: 38200, failed: 170 },
+  ],
+};

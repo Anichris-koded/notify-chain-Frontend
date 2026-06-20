@@ -19,6 +19,7 @@ import { StatCard } from "@/src/components/dashboard/stat-card";
 import { StatusBadge } from "@/src/components/dashboard/status-badge";
 import { EventVolumeChart } from "@/src/components/dashboard/event-volume-chart";
 import { ChannelMetrics } from "@/src/components/dashboard/channel-metrics";
+import { DeliveryTrendsChart } from "@/src/components/dashboard/delivery-trends-chart";
 import { useUIState } from "@/src/store";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -199,6 +200,11 @@ export default function DashboardPage() {
           <div className="p-3">
             <EventVolumeChart />
           </div>
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_360px]">
+          {/* Delivery trends */}
+          <DeliveryTrendsChart />
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_360px]">
